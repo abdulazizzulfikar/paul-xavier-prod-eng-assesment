@@ -20,8 +20,8 @@ return [
     ],
 
     'tokens' => [
-        'characters_per_text_token' => 4,
-        'text_token_variance_percent' => 15,
+        'characters_per_text_token' => 4, // prompt length (strlen) / 4 and roundup (https://platform.openai.com/tokenizer)
+        'text_token_variance_percent' => 15, // range bellow / up in percent
         'per_reference_image' => 765,
         'output' => [
             'low' => ['1024x1024' => 280, '1536x1024' => 420, '1024x1536' => 420],

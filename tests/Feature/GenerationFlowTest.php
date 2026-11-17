@@ -110,6 +110,16 @@ it('keeps an overloaded submission queued for a retry', function () {
     expect($generation->fresh()->status)->toBe(GenerationStatus::Queued);
 });
 
+it('waits at least as long as Retry-After before retrying', function () {
+    $generation = makeGeneration();
+    Http::fake(['*' => Http::response(['error' => ['code' => 'rate_limit_exceeded']], 429, ['Retry-After' => '30'])]);
+
+    $job = (new SubmitGeneration($generation))->withFakeQueueInteractions();
+    $job->handle();
+
+    $job->assertReleased(delay: 30);
+});
+
 it('rejects webhooks with a bad signature', function () {
     $generation = makeGeneration();
 

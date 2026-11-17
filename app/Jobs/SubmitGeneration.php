@@ -63,9 +63,11 @@ class SubmitGeneration implements ShouldQueue
             return;
         }
 
-        // Rate, concurrency and overload limits: nothing was created, wait as told and try again.
+        // Rate, concurrency and overload limits: nothing was created, so try again later.
+        // Back off further each time (capped at a minute) so retries stay well under 60 requests/minute.
         if (in_array($response->status(), [429, 503])) {
-            $this->release((int) $response->header('Retry-After') ?: 5);
+            $retryAfter = (int) $response->header('Retry-After');
+            $this->release(max($retryAfter, min(60, 2 ** $this->attempts())));
 
             return;
         }
